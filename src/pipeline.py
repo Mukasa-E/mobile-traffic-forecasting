@@ -1,31 +1,3 @@
-"""
-Milan Telecom dataset — memory-efficient ingestion pipeline.
-
-Handles the dataset the way it's actually distributed: ONE tab-separated,
-headerless .txt file per day, where each (SquareId, TimeInterval) appears
-as MULTIPLE rows (one per CountryCode). We aggregate across country codes
-immediately, so we never hold per-country granularity in memory longer
-than one chunk.
-
-Columns (per the official dataset description):
-    0: SquareId        (int, 1-10000)
-    1: TimeInterval     (int64 ms since epoch)
-    2: CountryCode      (int)
-    3: SMSin
-    4: SMSout
-    5: CallIn
-    6: CallOut
-    7: Internet         <- the column we care about for this assignment
-
-Usage:
-    python pipeline.py raw/sms-call-internet-mi-2013-12-01.txt
-
-Each call appends one day of aggregated (square, timestamp, internet_total)
-rows to a growing Parquet dataset at processed/internet_traffic.parquet,
-and prints memory usage before/after so you have real numbers to report
-in Section 1 of the report.
-"""
-
 import gc
 import sys
 import time
@@ -45,29 +17,26 @@ COLUMN_NAMES = [
     "sms_in", "sms_out", "call_in", "call_out", "internet",
 ]
 
-# Naive dtypes pandas would infer on its own (this is the "before" baseline)
 NAIVE_DTYPES = {
     "square_id": "int64",
     "time_interval": "int64",
-    "country_code": "float64",  # has NaNs in the real data -> pandas upcasts to float
+    "country_code": "float64",
     "sms_in": "float64", "sms_out": "float64",
     "call_in": "float64", "call_out": "float64",
     "internet": "float64",
 }
 
-# Optimised dtypes: square_id fits in uint16 (max 10000), country_code in
-# float32 is plenty of precision, all traffic counts are small non-negative
-# floats so float32 loses no meaningful information for this use case.
+
 OPTIMISED_DTYPES = {
     "square_id": "uint16",
-    "time_interval": "int64",   # keep as-is, needed for exact join on timestamp
+    "time_interval": "int64",   
     "country_code": "float32",
     "sms_in": "float32", "sms_out": "float32",
     "call_in": "float32", "call_out": "float32",
     "internet": "float32",
 }
 
-CHUNK_SIZE = 500_000  # rows per chunk read from disk
+CHUNK_SIZE = 500_000  
 
 
 def df_memory_mb(df: pd.DataFrame) -> float:
@@ -75,9 +44,6 @@ def df_memory_mb(df: pd.DataFrame) -> float:
 
 
 def process_day_naive(path: Path) -> tuple[pd.DataFrame, float, float]:
-    """Baseline: read the whole day file at once with default/naive dtypes.
-    Used ONLY to produce the 'before' memory number for the report — do not
-    use this path for the full 2-month run, it defeats the point."""
     t0 = time.time()
     df = pd.read_csv(path, sep="\t", header=None, names=COLUMN_NAMES,
                       dtype=NAIVE_DTYPES)
@@ -96,7 +62,7 @@ def process_day_optimised(path: Path) -> tuple[pd.DataFrame, float, float]:
     reader = pd.read_csv(
         path, sep="\t", header=None, names=COLUMN_NAMES,
         dtype=OPTIMISED_DTYPES, chunksize=CHUNK_SIZE,
-        usecols=["square_id", "time_interval", "internet"],  # drop sms/call, not needed for this task
+        usecols=["square_id", "time_interval", "internet"],
     )
     for chunk in reader:
         peak_chunk_mb = max(peak_chunk_mb, df_memory_mb(chunk))

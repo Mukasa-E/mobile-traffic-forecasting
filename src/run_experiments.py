@@ -1,13 +1,3 @@
-"""
-Run all 3 models (SARIMA, LSTM, Transformer) on the top-3 traffic squares,
-forecasting Dec 16-22, and produce:
-  - 9 plots (3 models x 3 squares): actual vs predicted
-  - 3 tables (one per square): MAE, MAPE, RMSE for all models
-  - timing stats for training and inference
-
-Usage:
-    python src/run_experiments.py
-"""
 import sys
 import time
 import platform
@@ -112,7 +102,7 @@ def run():
         table.to_csv(TABLE_DIR / f"square{square_id}_metrics.csv", index=False)
         print(table.to_string(index=False))
 
-        # save raw predictions too, needed for cross-model failure analysis in evaluate.py
+        #save raw predictions too, needed for cross-model failure analysis in evaluate.py
         pred_rows = []
         for model_name, res in results.items():
             for ts, act, pred in zip(test.index, actual, res["preds"]):

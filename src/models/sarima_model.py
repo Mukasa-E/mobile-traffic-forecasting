@@ -1,19 +1,3 @@
-"""
-ARIMA + Fourier-term baseline for one-step-ahead traffic forecasting.
-
-IMPORTANT: a full seasonal SARIMA state-space model with period=144
-(10-min resolution, daily cycle) is computationally impractical --
-statsmodels builds an internal state vector roughly proportional to
-p + P*s, so with s=144 every optimizer iteration becomes extremely
-expensive, and it can hang for many minutes even on a single fit.
-
-Instead we capture the daily seasonality with Fourier terms (sin/cos at
-the daily frequency and its harmonics) passed as EXOGENOUS regressors to
-a plain, non-seasonal ARIMA. This is a standard and well-established
-technique (harmonic regression) for periodic time series, and it fits
-in seconds rather than minutes while still explicitly modeling the
-24-hour cycle.
-"""
 import numpy as np
 import pandas as pd
 from statsmodels.tsa.statespace.sarimax import SARIMAX

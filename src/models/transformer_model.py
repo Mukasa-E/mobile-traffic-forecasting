@@ -1,7 +1,3 @@
-"""
-Small Transformer (encoder-only) for one-step-ahead traffic forecasting.
-Deliberately small (2 layers, d_model=32) so it trains fast on CPU.
-"""
 import numpy as np
 import torch
 import torch.nn as nn

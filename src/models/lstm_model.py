@@ -1,8 +1,3 @@
-"""
-Small LSTM for one-step-ahead traffic forecasting.
-Kept deliberately small (1 layer, 32 hidden units, few epochs) for
-time-constrained training while still being a real, working model.
-"""
 import numpy as np
 import torch
 import torch.nn as nn

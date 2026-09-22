@@ -1,16 +1,3 @@
-"""
-Reads the per-square outputs from run_experiments.py and produces the
-required cross-model comparative analysis:
-  - one combined summary table across all 3 squares
-  - identification of the best-performing model (by average rank across metrics)
-  - at least one documented failure case: the period/model/square with the
-    largest prediction error, plotted for discussion
-
-Run AFTER run_experiments.py has completed.
-
-Usage:
-    python src/evaluate.py
-"""
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -28,7 +15,7 @@ def main():
         print("No metrics files found in results/tables/ — run run_experiments.py first.")
         return
 
-    # --- 1. Combined summary table across all squares ---
+    #1.combined summary table across all squares
     all_metrics = []
     for f in metric_files:
         square_id = f.split("square")[1].split("_")[0]
@@ -42,7 +29,7 @@ def main():
     print("=== Combined comparison across all squares ===")
     print(combined.to_string(index=False))
 
-    # --- 2. Best model overall: average rank across MAE/MAPE/RMSE, averaged over squares ---
+    #2.best model overall: average rank across MAE/MAPE/RMSE, averaged over squares
     ranked = combined.copy()
     for metric in ["MAE", "MAPE", "RMSE"]:
         ranked[f"{metric}_rank"] = ranked.groupby("square_id")[metric].rank()
@@ -55,7 +42,7 @@ def main():
     best_model = overall.index[0]
     print(f"\nBest-performing model overall: {best_model}")
 
-    # --- 3. Failure case: largest single prediction error anywhere ---
+    #3.Failure case: largest single prediction error anywhere
     if pred_files:
         all_preds = pd.concat([pd.read_csv(f, parse_dates=["timestamp"]) for f in pred_files],
                                ignore_index=True)
@@ -66,7 +53,7 @@ def main():
               f"actual={worst.actual:.2f}, predicted={worst.predicted:.2f}, "
               f"abs_error={worst.abs_error:.2f}")
 
-        # plot a window around the worst error for discussion in the report
+    
         window = all_preds[
             (all_preds.square_id == worst.square_id) &
             (all_preds.model == worst.model) &

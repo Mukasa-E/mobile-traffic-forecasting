@@ -1,13 +1,3 @@
-"""
-Run all 3 models (SARIMA, LSTM, Transformer) on the top-3 traffic squares,
-forecasting Dec 16-22, and produce:
-  - 9 plots (3 models x 3 squares): actual vs predicted
-  - 3 tables (one per square): MAE, MAPE, RMSE for all models
-  - timing stats for training and inference
-
-Usage:
-    python src/run_experiments.py
-"""
 import sys
 import time
 import platform
@@ -62,7 +52,7 @@ def run():
     top3 = get_top3_squares(df)
     print(f"Top 3 squares: {top3}")
 
-    all_results = {}   # {square_id: {model_name: {metrics, preds, times}}}
+    all_results = {} #{square_id: {model_name: {metrics, preds, times}}}
     hardware = f"{platform.processor() or platform.machine()}, {platform.system()} {platform.release()}"
 
     for square_id in top3:
@@ -88,7 +78,7 @@ def run():
         preds, t_train, t_infer = fit_predict_transformer(train, test)
         results["Transformer"] = dict(preds=preds, train_time=t_train, infer_time=t_infer)
 
-        # metrics + plots
+        #metrics and plots
         actual = test.values
         rows = []
         for model_name, res in results.items():
