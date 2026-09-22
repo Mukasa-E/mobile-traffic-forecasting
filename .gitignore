@@ -1,0 +1,42 @@
+# Raw and generated datasets
+data/raw/
+data/processed/
+processed/*.parquet
+processed/*.csv
+
+# Generated experiment outputs
+results/figures/
+results/tables/*.csv
+results/tables/*.txt
+results/tables/*.parquet
+
+# Python cache and tooling
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+~$*
